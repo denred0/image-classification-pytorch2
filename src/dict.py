@@ -322,6 +322,8 @@ MODELS = [
     'xception41',
     'xception65',
     'xception71',
+    'tf_efficientnetv2_b0',
+    'tf_efficientnetv2_l',
 ]
 
 OPTIMIZERS = [

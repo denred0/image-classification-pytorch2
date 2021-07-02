@@ -121,7 +121,9 @@ class ICPModel(pl.LightningModule):
                                'tf_mobilenetv3_small_075',
                                'tf_mobilenetv3_small_100',
                                'tf_mobilenetv3_small_minimal_100',
-                               'tv_densenet121', ]:
+                               'tv_densenet121',
+                               'tf_efficientnetv2_b0',
+                               'tf_efficientnetv2_l',]:
             model = timm.create_model(model_type, pretrained=True)
             in_features = model.classifier.in_features
             model.classifier = nn.Linear(in_features, self.num_classes)
@@ -346,7 +348,7 @@ class ICPModel(pl.LightningModule):
                                  'legacy_seresnext50_32x4d',
                                  'legacy_seresnext101_32x4d',
                                  'nasnetalarge',
-                                 'pnasnet5large', ]:
+                                 'pnasnet5large',]:
             model = timm.create_model(model_type, pretrained=True)
             in_features = model.last_linear.in_features
             model.classifier = nn.Linear(in_features, self.num_classes)

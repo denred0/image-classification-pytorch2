@@ -17,13 +17,16 @@ import datetime
 project_name = 'covid'
 data_dir = 'data'
 images_ext = 'jpg'
-augment_p = 0.7
+augment_p = 0.8
 init_lr = 0.0003
 early_stop_patience = 6
-max_epochs = 2
+max_epochs = 20
 progress_bar_refresh_rate = 10
 
 senet154 = {'model_type': 'senet154', 'im_size': None, 'im_size_test': None, 'batch_size': 16}
+tf_efficientnet_b6_ns = {'model_type': 'tf_efficientnet_b6_ns', 'im_size': None, 'im_size_test': None, 'batch_size': 2}
+tf_efficientnetv2_b0 = {'model_type': 'tf_efficientnetv2_b0', 'im_size': None, 'im_size_test': None, 'batch_size': 8}
+tf_efficientnetv2_l = {'model_type': 'tf_efficientnetv2_l', 'im_size': None, 'im_size_test': None, 'batch_size': 4}
 
 models = [senet154]
 

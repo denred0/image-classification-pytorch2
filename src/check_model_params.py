@@ -1,12 +1,14 @@
 import timm
 from pprint import pprint
 
-model_names = timm.list_models(pretrained=True)
+# model_names = timm.list_models(pretrained=True)
+
+model_names = timm.list_models('*eff*')
+
 
 pprint(model_names)
 
-model = 'inception_v4'
+model = 'tf_efficientnetv2_l'
 m = timm.create_model(model, pretrained=True)
-print(model)
 pprint(m.default_cfg)
 
