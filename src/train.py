@@ -3,6 +3,7 @@ from src.model import ICPModel
 from src.inference import ICPInference
 
 from pathlib import Path
+from tqdm import tqdm
 
 # lightning related imports
 import pytorch_lightning as pl
@@ -16,23 +17,82 @@ import datetime
 
 project_name = 'covid'
 data_dir = 'data'
-images_ext = 'jpg'
+images_ext = 'png'
 augment_p = 0.8
 init_lr = 0.0003
 early_stop_patience = 6
-max_epochs = 20
+max_epochs = 1
 progress_bar_refresh_rate = 10
 
-senet154 = {'model_type': 'senet154', 'im_size': None, 'im_size_test': None, 'batch_size': 16}
-tf_efficientnet_b6_ns = {'model_type': 'tf_efficientnet_b6_ns', 'im_size': None, 'im_size_test': None, 'batch_size': 2}
-tf_efficientnetv2_b0 = {'model_type': 'tf_efficientnetv2_b0', 'im_size': None, 'im_size_test': None, 'batch_size': 8}
-tf_efficientnetv2_l = {'model_type': 'tf_efficientnetv2_l', 'im_size': None, 'im_size_test': None, 'batch_size': 4}
+model_names = timm.list_models(pretrained=True)
+model_names = ['eca_nfnet_l2']
 
-models = [senet154]
+models = []
+for m in model_names:
+
+    # not implemented
+    if m in ['deit_base_distilled_patch16_224',
+             'deit_base_distilled_patch16_384',
+             'deit_base_patch16_224',
+             'deit_base_patch16_384',
+             'deit_small_distilled_patch16_224',
+             'deit_small_patch16_224',
+             'deit_tiny_distilled_patch16_224',
+             'deit_tiny_patch16_224', ]:
+        continue
+
+    # already tested
+    if m in ['adv_inception_v3',
+             'cait_m36_384',
+             'cait_m48_448',
+             'cait_s24_224',
+             'cait_s24_384',
+             'cait_s36_384',
+             'cait_xs24_384',
+             'cait_xxs24_224',
+             'cait_xxs24_384',
+             'cait_xxs36_224',
+             'cait_xxs36_384',
+             ]:
+        continue
+
+    # CUDA not enough memory (11 GB)
+    if m in ['cait_m36_384',
+             'cait_m48_448',
+             'dm_nfnet_f6',
+             'dm_nfnet_f5']:
+        continue
+
+    model_dict = {}
+
+    if m in ['cait_s24_384',
+             'cait_xs24_384',
+             'cait_xxs36_384', ]:
+        model_dict['batch_size'] = 4
+    elif m in ['cait_s36_384', 'dm_nfnet_f3']:
+        model_dict['batch_size'] = 2
+    elif m in ['dm_nfnet_f4']:
+        model_dict['batch_size'] = 1
+    else:
+        model_dict['batch_size'] = 8
+
+    model_dict['model_type'] = m
+    model_dict['im_size'] = None
+    model_dict['im_size_test'] = None
+
+    models.append(model_dict)
+
+# senet154 = {'model_type': 'senet154', 'im_size': None, 'im_size_test': None, 'batch_size': 16}
+# tf_efficientnet_b6_ns = {'model_type': 'tf_efficientnet_b6_ns', 'im_size': None, 'im_size_test': None, 'batch_size': 2}
+# tf_efficientnetv2_b0 = {'model_type': 'tf_efficientnetv2_b0', 'im_size': None, 'im_size_test': None, 'batch_size': 8}
+# tf_efficientnetv2_l = {'model_type': 'tf_efficientnetv2_l', 'im_size': None, 'im_size_test': None, 'batch_size': 4}
+#
+# models = [senet154]
 
 models_for_training = []
+models = models[:30]
 
-for m in models:
+for m in tqdm(models):
     model_data = {'model': m}
 
     mod = timm.create_model(model_data['model']['model_type'], pretrained=False)
@@ -44,6 +104,7 @@ for m in models:
     im_size_test = 0
 
     print(model_data['model']['model_type'] + ' input size is ' + str(mod.default_cfg['input_size']))
+
     if model_data['model']['im_size']:
         im_size = model_data['model']['im_size']
     else:
@@ -109,7 +170,10 @@ for m in models:
                          progress_bar_refresh_rate=progress_bar_refresh_rate,
                          gpus=1,
                          logger=logger,
-                         callbacks=callbacks)
+                         callbacks=callbacks,
+                         # amp_level='02',
+                         # precision=16
+                         )
 
     model_data['icp_datamodule'] = dm
     model_data['icp_model'] = model

@@ -324,6 +324,26 @@ MODELS = [
     'xception71',
     'tf_efficientnetv2_b0',
     'tf_efficientnetv2_l',
+    'cait_m36_384',
+    'cait_m48_448',
+    'cait_s24_224',
+    'cait_s24_384',
+    'cait_s36_384',
+    'cait_xs24_384',
+    'cait_xxs24_224',
+    'cait_xxs24_384',
+    'cait_xxs36_224',
+    'cait_xxs36_384',
+    'coat_lite_mini',
+    'coat_lite_small',
+    'coat_lite_tiny',
+    'coat_mini',
+    'coat_tiny',
+    'convit_base',
+    'convit_small',
+    'convit_tiny',
+    'deit_base_distilled_patch16_224',
+
 ]
 
 OPTIMIZERS = [

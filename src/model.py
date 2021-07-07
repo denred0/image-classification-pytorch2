@@ -33,12 +33,7 @@ class ICPModel(pl.LightningModule):
                                'densenet169',
                                'densenet201',
                                'densenetblur121d',
-                               'dpn68',
-                               'dpn68b',
-                               'dpn92',
-                               'dpn98',
-                               'dpn107',
-                               'dpn131',
+
                                'efficientnet_b0',
                                'efficientnet_b1',
                                'efficientnet_b1_pruned',
@@ -123,25 +118,14 @@ class ICPModel(pl.LightningModule):
                                'tf_mobilenetv3_small_minimal_100',
                                'tv_densenet121',
                                'tf_efficientnetv2_b0',
-                               'tf_efficientnetv2_l',]:
+                               'tf_efficientnetv2_l', ]:
             model = timm.create_model(model_type, pretrained=True)
             in_features = model.classifier.in_features
             model.classifier = nn.Linear(in_features, self.num_classes)
             self.model = model
 
         elif self.model_type in ['adv_inception_v3',  # fc
-                                 'dla34',
-                                 'dla46_c',
-                                 'dla46x_c',
-                                 'dla60',
-                                 'dla60_res2net',
-                                 'dla60_res2next',
-                                 'dla60x',
-                                 'dla60x_c',
-                                 'dla102',
-                                 'dla102x',
-                                 'dla102x2',
-                                 'dla169',
+
                                  'ecaresnet26t',
                                  'ecaresnet50d',
                                  'ecaresnet50d_pruned',
@@ -244,6 +228,46 @@ class ICPModel(pl.LightningModule):
             in_features = model.fc.in_features
             model.classifier = nn.Linear(in_features, self.num_classes)
             self.model = model
+        elif self.model_type in ['dla34',
+                                 'dla46_c',
+                                 'dla46x_c',
+                                 'dla60',
+                                 'dla60_res2net',
+                                 'dla60_res2next',
+                                 'dla60x',
+                                 'dla60x_c',
+                                 'dla102',
+                                 'dla102x',
+                                 'dla102x2',
+                                 'dla169',
+                                 'dpn68',
+                                 'dpn68b',
+                                 'dpn92',
+                                 'dpn98',
+                                 'dpn107',
+                                 'dpn131',
+                                 ]:
+            model = timm.create_model(model_type, pretrained=True)
+            if self.model_type == 'dla34':
+                model.fc = nn.Conv2d(512, self.num_classes, kernel_size=(1, 1), stride=(1, 1))
+            elif self.model_type in ['dla46_c',
+                                     'dla46x_c',
+                                     'dla60x_c', ]:
+                model.fc = nn.Conv2d(256, self.num_classes, kernel_size=(1, 1), stride=(1, 1))
+            elif self.model_type in ['dla60',
+                                     'dla60_res2net',
+                                     'dla60_res2next',
+                                     'dla60x',
+                                     'dla102',
+                                     'dla102x',
+                                     'dla102x2',
+                                     'dla169']:
+                model.fc = nn.Conv2d(1024, self.num_classes, kernel_size=(1, 1), stride=(1, 1))
+            elif self.model_type in ['dpn68', 'dpn68b', ]:
+                model.fc = nn.Conv2d(832, self.num_classes, kernel_size=(1, 1), stride=(1, 1))
+            elif self.model_type in ['dpn92', 'dpn98', 'dpn107', 'dpn131', ]:
+                model.fc = nn.Conv2d(2688, self.num_classes, kernel_size=(1, 1), stride=(1, 1))
+            self.model = model
         elif self.model_type in ['cspdarknet53',  # head.fc
                                  'cspresnet50',
                                  'cspresnext50',
@@ -331,6 +355,14 @@ class ICPModel(pl.LightningModule):
             in_features = model.head.fc.in_features
             model.classifier = nn.Linear(in_features, self.num_classes)
             self.model = model
+        elif self.model_type in ['deit_base_distilled_patch16_224']:
+            model = timm.create_model(model_type, pretrained=True)
+            in_features_head = model.head.in_features
+            in_features_head_dist = model.head_dist.in_features
+            model.head = nn.Linear(in_features_head, self.num_classes)
+            model.head_dist = nn.Linear(in_features_head_dist, self.num_classes)
+            print(model)
+            self.model = model
         elif self.model_type in ['ens_adv_inception_resnet_v2',  # classif
                                  'inception_resnet_v2', ]:
             model = timm.create_model(model_type, pretrained=True)
@@ -348,7 +380,7 @@ class ICPModel(pl.LightningModule):
                                  'legacy_seresnext50_32x4d',
                                  'legacy_seresnext101_32x4d',
                                  'nasnetalarge',
-                                 'pnasnet5large',]:
+                                 'pnasnet5large', ]:
             model = timm.create_model(model_type, pretrained=True)
             in_features = model.last_linear.in_features
             model.classifier = nn.Linear(in_features, self.num_classes)
@@ -373,7 +405,25 @@ class ICPModel(pl.LightningModule):
                                  'vit_large_patch16_384',
                                  'vit_large_patch32_224_in21k',
                                  'vit_large_patch32_384',
-                                 'vit_small_patch16_224', ]:
+                                 'vit_small_patch16_224',
+                                 'cait_m36_384',
+                                 'cait_m48_448',
+                                 'cait_s24_224',
+                                 'cait_s24_384',
+                                 'cait_s36_384',
+                                 'cait_xs24_384',
+                                 'cait_xxs24_224',
+                                 'cait_xxs24_384',
+                                 'cait_xxs36_224',
+                                 'cait_xxs36_384',
+                                 'coat_lite_mini',
+                                 'coat_lite_small',
+                                 'coat_lite_tiny',
+                                 'coat_mini',
+                                 'coat_tiny',
+                                 'convit_base',
+                                 'convit_small',
+                                 'convit_tiny', ]:
             model = timm.create_model(model_type, pretrained=True)
             in_features = model.head.in_features
             model.classifier = nn.Linear(in_features, self.num_classes)
