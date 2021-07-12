@@ -2,9 +2,9 @@ import timm
 from pprint import pprint
 from tqdm import tqdm
 
-model_names = timm.list_models(pretrained=True)
+# model_names = timm.list_models(pretrained=True)
 
-# model_names = timm.list_models('*eff*')
+model_names = timm.list_models('*eff*')
 
 
 pprint(model_names)
@@ -15,7 +15,7 @@ pprint(model_names)
 #     # pprint(m.default_cfg)
 
 
-# model = 'dpn131'
+# model = 'efficientnet_cc_b0_4e'
 # m = timm.create_model(model, pretrained=True)
 # print(m)
 

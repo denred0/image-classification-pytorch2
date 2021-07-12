@@ -20,12 +20,151 @@ data_dir = 'data'
 images_ext = 'png'
 augment_p = 0.8
 init_lr = 0.0003
-early_stop_patience = 6
-max_epochs = 1
+early_stop_patience = 5
+max_epochs = 100
 progress_bar_refresh_rate = 10
 
-model_names = timm.list_models(pretrained=True)
-model_names = ['eca_nfnet_l2']
+# model_names = timm.list_models(pretrained=True)
+model_names = ['eca_efficientnet_b0',
+               'efficientnet_b0',
+               'efficientnet_b1',
+               'efficientnet_b1_pruned',
+               'efficientnet_b2',
+               'efficientnet_b2_pruned',
+               'efficientnet_b2a',
+               'efficientnet_b3',
+               'efficientnet_b3_pruned',
+               'efficientnet_b3a',
+               'efficientnet_b4',
+               'efficientnet_b5',
+               'efficientnet_b6',
+               'efficientnet_b7',
+               'efficientnet_b8',
+               'efficientnet_cc_b0_4e',
+               'efficientnet_cc_b0_8e',
+               'efficientnet_cc_b1_8e',
+               'efficientnet_el',
+               'efficientnet_el_pruned',
+               'efficientnet_em',
+               'efficientnet_es',
+               'efficientnet_es_pruned',
+               'efficientnet_l2',
+               'efficientnet_lite0',
+               'efficientnet_lite1',
+               'efficientnet_lite2',
+               'efficientnet_lite3',
+               'efficientnet_lite4',
+               'efficientnetv2_l',
+               'efficientnetv2_m',
+               'efficientnetv2_rw_m',
+               'efficientnetv2_rw_s',
+               'efficientnetv2_s',
+               'gc_efficientnet_b0',
+               'tf_efficientnet_b0',
+               'tf_efficientnet_b0_ap',
+               'tf_efficientnet_b0_ns',
+               'tf_efficientnet_b1',
+               'tf_efficientnet_b1_ap',
+               'tf_efficientnet_b1_ns',
+               'tf_efficientnet_b2',
+               'tf_efficientnet_b2_ap',
+               'tf_efficientnet_b2_ns',
+               'tf_efficientnet_b3',
+               'tf_efficientnet_b3_ap',
+               'tf_efficientnet_b3_ns',
+               'tf_efficientnet_b4',
+               'tf_efficientnet_b4_ap',
+               'tf_efficientnet_b4_ns', ]
+
+# model_names = timm.list_models('*eff*')
+
+# 'eca_efficientnet_b0',
+# 'efficientnet_b0',
+# 'efficientnet_b1',
+# 'efficientnet_b1_pruned',
+# 'efficientnet_b2',
+# 'efficientnet_b2_pruned',
+# 'efficientnet_b2a',
+# 'efficientnet_b3',
+# 'efficientnet_b3_pruned',
+# 'efficientnet_b3a',
+# 'efficientnet_b4',
+# 'efficientnet_b5',
+# 'efficientnet_b6',
+# 'efficientnet_b7',
+# 'efficientnet_b8',
+# 'efficientnet_cc_b0_4e',
+# 'efficientnet_cc_b0_8e',
+# 'efficientnet_cc_b1_8e',
+# 'efficientnet_el',
+# 'efficientnet_el_pruned',
+# 'efficientnet_em',
+# 'efficientnet_es',
+# 'efficientnet_es_pruned',
+# 'efficientnet_l2',
+# 'efficientnet_lite0',
+# 'efficientnet_lite1',
+# 'efficientnet_lite2',
+# 'efficientnet_lite3',
+# 'efficientnet_lite4',
+# 'efficientnetv2_l',
+# 'efficientnetv2_m',
+# 'efficientnetv2_rw_m',
+# 'efficientnetv2_rw_s',
+# 'efficientnetv2_s',
+# 'gc_efficientnet_b0',
+# 'tf_efficientnet_b0',
+# 'tf_efficientnet_b0_ap',
+# 'tf_efficientnet_b0_ns',
+# 'tf_efficientnet_b1',
+# 'tf_efficientnet_b1_ap',
+# 'tf_efficientnet_b1_ns',
+# 'tf_efficientnet_b2',
+# 'tf_efficientnet_b2_ap',
+# 'tf_efficientnet_b2_ns',
+# 'tf_efficientnet_b3',
+# 'tf_efficientnet_b3_ap',
+# 'tf_efficientnet_b3_ns',
+# 'tf_efficientnet_b4',
+# 'tf_efficientnet_b4_ap',
+# 'tf_efficientnet_b4_ns',
+# 'tf_efficientnet_b5',
+# 'tf_efficientnet_b5_ap',
+# 'tf_efficientnet_b5_ns',
+# 'tf_efficientnet_b6',
+# 'tf_efficientnet_b6_ap',
+# 'tf_efficientnet_b6_ns',
+# 'tf_efficientnet_b7',
+# 'tf_efficientnet_b7_ap',
+# 'tf_efficientnet_b7_ns',
+# 'tf_efficientnet_b8',
+# 'tf_efficientnet_b8_ap',
+# 'tf_efficientnet_cc_b0_4e',
+# 'tf_efficientnet_cc_b0_8e',
+# 'tf_efficientnet_cc_b1_8e',
+# 'tf_efficientnet_el',
+# 'tf_efficientnet_em',
+# 'tf_efficientnet_es',
+# 'tf_efficientnet_l2_ns',
+# 'tf_efficientnet_l2_ns_475',
+# 'tf_efficientnet_lite0',
+# 'tf_efficientnet_lite1',
+# 'tf_efficientnet_lite2',
+# 'tf_efficientnet_lite3',
+# 'tf_efficientnet_lite4',
+# 'tf_efficientnetv2_b0',
+# 'tf_efficientnetv2_b1',
+# 'tf_efficientnetv2_b2',
+# 'tf_efficientnetv2_b3',
+# 'tf_efficientnetv2_l',
+# 'tf_efficientnetv2_l_in21ft1k',
+# 'tf_efficientnetv2_l_in21k',
+# 'tf_efficientnetv2_m',
+# 'tf_efficientnetv2_m_in21ft1k',
+# 'tf_efficientnetv2_m_in21k',
+# 'tf_efficientnetv2_s',
+# 'tf_efficientnetv2_s_in21ft1k',
+# 'tf_efficientnetv2_s_in21k'
 
 models = []
 for m in model_names:
@@ -41,37 +180,47 @@ for m in model_names:
              'deit_tiny_patch16_224', ]:
         continue
 
-    # already tested
-    if m in ['adv_inception_v3',
-             'cait_m36_384',
-             'cait_m48_448',
-             'cait_s24_224',
-             'cait_s24_384',
-             'cait_s36_384',
-             'cait_xs24_384',
-             'cait_xxs24_224',
-             'cait_xxs24_384',
-             'cait_xxs36_224',
-             'cait_xxs36_384',
-             ]:
-        continue
+    # # already tested
+    # if m in ['adv_inception_v3',
+    #          'cait_m36_384',
+    #          'cait_m48_448',
+    #          'cait_s24_224',
+    #          'cait_s24_384',
+    #          'cait_s36_384',
+    #          'cait_xs24_384',
+    #          'cait_xxs24_224',
+    #          'cait_xxs24_384',
+    #          'cait_xxs36_224',
+    #          'cait_xxs36_384',
+    #          ]:
+    #     continue
 
     # CUDA not enough memory (11 GB)
     if m in ['cait_m36_384',
              'cait_m48_448',
              'dm_nfnet_f6',
-             'dm_nfnet_f5']:
+             'dm_nfnet_f5',
+             'efficientnet_l2']:
         continue
 
     model_dict = {}
 
     if m in ['cait_s24_384',
              'cait_xs24_384',
-             'cait_xxs36_384', ]:
+             'cait_xxs36_384',
+             'efficientnet_b5',
+             ]:
         model_dict['batch_size'] = 4
-    elif m in ['cait_s36_384', 'dm_nfnet_f3']:
+    elif m in ['cait_s36_384',
+               'dm_nfnet_f3',
+               'efficientnet_b6',
+               'efficientnet_b7',
+               'efficientnetv2_l'
+               ]:
         model_dict['batch_size'] = 2
-    elif m in ['dm_nfnet_f4']:
+    elif m in ['dm_nfnet_f4',
+               'efficientnet_b8',
+               'efficientnet_l2', ]:
         model_dict['batch_size'] = 1
     else:
         model_dict['batch_size'] = 8
@@ -90,7 +239,7 @@ for m in model_names:
 # models = [senet154]
 
 models_for_training = []
-models = models[:30]
+# models = models[:30]
 
 for m in tqdm(models):
     model_data = {'model': m}
@@ -153,14 +302,14 @@ for m in tqdm(models):
                                                mode='min',
                                                filename=checkpoint_name,
                                                verbose=True,
-                                               save_top_k=1,
+                                               save_top_k=3,
                                                save_last=False)
 
     checkpoint_callback_acc = ModelCheckpoint(monitor='val_acc',
                                               mode='max',
                                               filename=checkpoint_name,
                                               verbose=True,
-                                              save_top_k=1,
+                                              save_top_k=3,
                                               save_last=False)
 
     checkpoints = [checkpoint_callback_acc, checkpoint_callback_loss, early_stop_callback]

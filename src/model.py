@@ -118,7 +118,31 @@ class ICPModel(pl.LightningModule):
                                'tf_mobilenetv3_small_minimal_100',
                                'tv_densenet121',
                                'tf_efficientnetv2_b0',
-                               'tf_efficientnetv2_l', ]:
+                               'tf_efficientnetv2_l',
+                               'eca_efficientnet_b0',
+                               'efficientnet_b2_pruned',
+                               'efficientnet_b4',
+                               'efficientnet_b5',
+                               'efficientnet_b6',
+                               'efficientnet_b7',
+                               'efficientnet_b8',
+                               'efficientnet_cc_b0_4e',
+                               'efficientnet_cc_b0_8e',
+                               'efficientnet_cc_b1_8e',
+                               'efficientnet_el',
+                               'efficientnet_el_pruned',
+                               'efficientnet_es_pruned',
+                               'efficientnet_l2',
+                               'efficientnet_lite1',
+                               'efficientnet_lite2',
+                               'efficientnet_lite3',
+                               'efficientnet_lite4',
+                               'efficientnetv2_l',
+                               'efficientnetv2_m',
+                               'efficientnetv2_rw_m',
+                               'efficientnetv2_rw_s',
+                               'efficientnetv2_s',
+                               'gc_efficientnet_b0',]:
             model = timm.create_model(model_type, pretrained=True)
             in_features = model.classifier.in_features
             model.classifier = nn.Linear(in_features, self.num_classes)
