@@ -15,13 +15,13 @@ import timm
 
 import datetime
 
-project_name = 'simps'
-data_dir = 'data'
+project_name = 'landmarks'
+data_dir = 'data/landmark-recognition-2021/train'
 images_ext = 'jpg'
 augment_p = 0.8
 init_lr = 0.0003
 early_stop_patience = 6
-max_epochs = 3
+max_epochs = 50
 progress_bar_refresh_rate = 10
 
 model_names = [

@@ -44,24 +44,6 @@ class InferenceDataset(Dataset):
         return image, image_id
 
 
-# class ICPInference():
-#     def __init__(self,
-#                  checkpoint,
-#                  data_dir='data',
-#                  img_size=456,
-#                  mean=[0.485, 0.456, 0.406],
-#                  std=[0.229, 0.224, 0.225],
-#                  confidence_threshold=1,
-#                  show_accuracy=False):
-#         super().__init__()
-#         self.checkpoint = checkpoint,
-#         self.data_dir = data_dir
-#         self.img_size = img_size
-#         self.mean = mean
-#         self.std = std
-#         self.confidence_threshold = confidence_threshold,
-#         self.show_accuracy = show_accuracy
-
 checkpoint = 'tb_logs/simps/efficientnet_b0/version_0/checkpoints/efficientnet_b0__epoch=2_val_loss=0.120_val_acc=0.963_val_f1_epoch=0.000-v1.ckpt'
 data_dir = 'inference'
 img_size = 224
@@ -76,7 +58,6 @@ model.eval()
 model.freeze()
 
 sm = torch.nn.Softmax()
-
 
 label_encoder = pickle.load(open("label_encoder.pkl", 'rb'))
 

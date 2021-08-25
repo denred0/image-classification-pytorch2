@@ -1,6 +1,8 @@
 import numpy as np
 import pickle
 import os
+import pandas as pd
+from tqdm import tqdm
 
 # pytorch related imports
 from torch.utils.data import DataLoader, WeightedRandomSampler
@@ -72,6 +74,75 @@ class ICPDataModule(pl.LightningDataModule):
                      A.Emboss(),
                      A.RandomBrightnessContrast()], p=0.5),
         ], p=p)
+
+    # def setup(self, stage=None):
+    #     # Assign train/val datasets for use in dataloaders
+    #
+    #     path = Path(self.data_dir)
+    #
+    #     train_df = pd.read_csv('data/landmark-recognition-2021/train.csv')
+    #     landmark = train_df.landmark_id.value_counts()
+    #     # print(landmark[:10000].index.values)
+    #     l = landmark[:5000].index.values
+    #
+    #     freq_landmarks_df = train_df[train_df['landmark_id'].isin(l)]
+    #     image_ids = freq_landmarks_df['id'].tolist()
+    #     landmark_ids = freq_landmarks_df['landmark_id'].tolist()
+    #
+    #     label_encoder = LabelEncoder()
+    #     encoded = label_encoder.fit_transform(l)
+    #     self.num_classes = len(np.unique(encoded))
+    #
+    #     # save labels dict to file
+    #     with open('label_encoder.pkl', 'wb') as le_dump_file:
+    #         pickle.dump(label_encoder, le_dump_file)
+    #
+    #     image_ids_paths = []
+    #
+    #     for im in tqdm(image_ids, desc='Get paths: '):
+    #         for path, subdirs, files in os.walk(str(path)):
+    #             for name in files:
+    #                 filename, file_extension = os.path.splitext(name)
+    #                 if filename == im:
+    #                     image_ids_paths.append(os.path.join(path, name))
+    #
+    #     train_files, val_test_files, train_labels, val_test_labels = train_test_split(image_ids_paths, landmark_ids,
+    #                                                                                   test_size=0.3, random_state=42,
+    #                                                                                   stratify=landmark_ids)
+    #     train_data = train_files, train_labels
+    #
+    #     val_files, test_files, val_labels, test_labels = train_test_split(val_test_files, val_test_labels,
+    #                                                                       test_size=0.5, random_state=42,
+    #                                                                       stratify=val_test_labels)
+    #
+    #     val_data = val_files, val_labels
+    #     test_data = test_files, test_labels
+    #
+    #     self.sampler = None
+    #     # self.sampler = WeightedRandomSampler(sample_weights, num_samples=len(sample_weights), replacement=True)
+    #
+    #     if stage == 'fit' or stage is None:
+    #         self.dataset_train = ICPDataset(
+    #             data=train_data,
+    #             input_resize=self.input_resize,
+    #             augments=self.augments,
+    #             preprocessing=self.preprocessing)
+    #
+    #         self.dataset_val = ICPDataset(
+    #             data=val_data,
+    #             input_resize=self.input_resize,
+    #             preprocessing=self.preprocessing)
+    #
+    #         self.dims = tuple(self.dataset_train[0][0].shape)
+    #
+    #     # Assign test dataset for use in dataloader(s)
+    #     if stage == 'test' or stage is None:
+    #         self.dataset_test = ICPDataset(
+    #             data=test_data,
+    #             input_resize=self.input_resize_test,
+    #             preprocessing=self.preprocessing)
+    #
+    #         self.dims = tuple(self.dataset_test[0][0].shape)
 
     def setup(self, stage=None):
         # Assign train/val datasets for use in dataloaders
