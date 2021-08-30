@@ -21,12 +21,12 @@ images_ext = 'jpg'
 augment_p = 0.8
 init_lr = 0.0003
 early_stop_patience = 6
-max_epochs = 50
-progress_bar_refresh_rate = 10
+max_epochs = 5
+progress_bar_refresh_rate = 20
 
-model_names = [
-    'efficientnet_b0',
-]
+model_names = ['efficientnet_b6', ]
+
+default_batchsize = 32
 
 models = []
 for m in model_names:
@@ -85,7 +85,7 @@ for m in model_names:
                'efficientnet_l2', ]:
         model_dict['batch_size'] = 1
     else:
-        model_dict['batch_size'] = 8
+        model_dict['batch_size'] = default_batchsize
 
     model_dict['model_type'] = m
     model_dict['im_size'] = None
@@ -146,6 +146,11 @@ for m in tqdm(models):
                      classes_weights=None,
                      learning_rate=init_lr)
 
+    if model_data['model']['model_type'] == 'inception_v4':
+        checkpoint = 'tb_logs/landmarks/inception_v4/version_38/checkpoints/inception_v4__epoch=4_val_loss=3.221_val_acc=0.399-v1.ckpt'
+        model = ICPModel.load_from_checkpoint(checkpoint_path=checkpoint)
+        model = model.to("cuda")
+
     # Initialize a trainer
     early_stop_callback = EarlyStopping(
         monitor='val_loss',
@@ -158,20 +163,20 @@ for m in tqdm(models):
     experiment_name = model_data['model']['model_type']
     logger = TensorBoardLogger('tb_logs/' + project_name + '/', name=experiment_name)
 
-    checkpoint_name = experiment_name + '_' + '_{epoch}_{val_loss:.3f}_{val_acc:.3f}_{val_f1_epoch:.3f}'
+    checkpoint_name = experiment_name + '_' + '_{epoch}_{val_loss:.3f}_{val_acc:.3f}'
 
     checkpoint_callback_loss = ModelCheckpoint(monitor='val_loss',
                                                mode='min',
                                                filename=checkpoint_name,
                                                verbose=True,
-                                               save_top_k=3,
+                                               save_top_k=2,
                                                save_last=False)
 
     checkpoint_callback_acc = ModelCheckpoint(monitor='val_acc',
                                               mode='max',
                                               filename=checkpoint_name,
                                               verbose=True,
-                                              save_top_k=3,
+                                              save_top_k=2,
                                               save_last=False)
 
     checkpoints = [checkpoint_callback_acc, checkpoint_callback_loss, early_stop_callback]

@@ -15,9 +15,9 @@ pprint(model_names)
 #     # pprint(m.default_cfg)
 
 
-# model = 'efficientnet_cc_b0_4e'
-# m = timm.create_model(model, pretrained=True)
+model = 'tf_efficientnet_b6'
+m = timm.create_model(model, pretrained=True)
 # print(m)
 
 
-# pprint(m.default_cfg)
+pprint(m.default_cfg)

@@ -2,7 +2,8 @@ import torch
 from torch import nn
 
 import pytorch_lightning as pl
-from pytorch_lightning.metrics.functional import accuracy
+# from pytorch_lightning.metrics.functional import accuracy
+from torchmetrics.functional.classification.accuracy import accuracy
 
 import torchmetrics
 
@@ -142,7 +143,7 @@ class ICPModel(pl.LightningModule):
                                'efficientnetv2_rw_m',
                                'efficientnetv2_rw_s',
                                'efficientnetv2_s',
-                               'gc_efficientnet_b0',]:
+                               'gc_efficientnet_b0', ]:
             model = timm.create_model(model_type, pretrained=True)
             in_features = model.classifier.in_features
             model.classifier = nn.Linear(in_features, self.num_classes)
@@ -407,7 +408,7 @@ class ICPModel(pl.LightningModule):
                                  'pnasnet5large', ]:
             model = timm.create_model(model_type, pretrained=True)
             in_features = model.last_linear.in_features
-            model.classifier = nn.Linear(in_features, self.num_classes)
+            model.last_linear = nn.Linear(in_features, self.num_classes)
             self.model = model
         elif self.model_type in ['vit_base_patch16_224',  # head
                                  'vit_base_patch16_224_in21k',
@@ -464,6 +465,8 @@ class ICPModel(pl.LightningModule):
                 False
             ), f"model_type '{self.model_type}' not implemented. Please, choose from {MODELS}"
 
+
+
         # self.classes_weights = classes_weights
         if classes_weights:
             self.classes_weights = torch.FloatTensor(classes_weights).cuda()
@@ -473,6 +476,8 @@ class ICPModel(pl.LightningModule):
 
         # self.loss_func = nn.CrossEntropyLoss(weight=self.classes_weigts)
         self.f1 = torchmetrics.F1(num_classes=self.num_classes)
+
+        # print(self.model)
 
     def loss(self, logits, labels):
         return self.loss_func(input=logits, target=labels)
@@ -548,7 +553,7 @@ class ICPModel(pl.LightningModule):
     def configure_optimizers(self):
         gen_opt = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
 
-        gen_sched = {'scheduler': torch.optim.lr_scheduler.ExponentialLR(gen_opt, gamma=0.999, verbose=False),
-                     'interval': 'step'}
+        gen_sched = {'scheduler': torch.optim.lr_scheduler.ExponentialLR(gen_opt, gamma=0.999, verbose=True),
+                     'interval': 'epoch'}
 
         return [gen_opt], [gen_sched]

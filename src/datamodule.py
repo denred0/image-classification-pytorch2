@@ -29,8 +29,6 @@ class ICPDataModule(pl.LightningDataModule):
                  input_resize_test,
                  mean,
                  std,
-                 use_normalize=True,
-                 half_normalize=False,
                  augment_p=0.7,
                  images_ext='jpg'):
         super().__init__()
@@ -80,46 +78,61 @@ class ICPDataModule(pl.LightningDataModule):
     #
     #     path = Path(self.data_dir)
     #
-    #     train_df = pd.read_csv('data/landmark-recognition-2021/train.csv')
-    #     landmark = train_df.landmark_id.value_counts()
-    #     # print(landmark[:10000].index.values)
-    #     l = landmark[:5000].index.values
-    #
-    #     freq_landmarks_df = train_df[train_df['landmark_id'].isin(l)]
-    #     image_ids = freq_landmarks_df['id'].tolist()
-    #     landmark_ids = freq_landmarks_df['landmark_id'].tolist()
+    #     train_val_files = list(path.rglob('*.' + self.images_ext))
+    #     train_val_labels = [path.parent.name for path in train_val_files]
     #
     #     label_encoder = LabelEncoder()
-    #     encoded = label_encoder.fit_transform(l)
+    #     encoded = label_encoder.fit_transform(train_val_labels)
     #     self.num_classes = len(np.unique(encoded))
     #
     #     # save labels dict to file
     #     with open('label_encoder.pkl', 'wb') as le_dump_file:
     #         pickle.dump(label_encoder, le_dump_file)
     #
-    #     image_ids_paths = []
+    #     train_files, val_test_files = train_test_split(train_val_files, test_size=0.3, stratify=train_val_labels)
     #
-    #     for im in tqdm(image_ids, desc='Get paths: '):
-    #         for path, subdirs, files in os.walk(str(path)):
-    #             for name in files:
-    #                 filename, file_extension = os.path.splitext(name)
-    #                 if filename == im:
-    #                     image_ids_paths.append(os.path.join(path, name))
-    #
-    #     train_files, val_test_files, train_labels, val_test_labels = train_test_split(image_ids_paths, landmark_ids,
-    #                                                                                   test_size=0.3, random_state=42,
-    #                                                                                   stratify=landmark_ids)
+    #     train_labels = [path.parent.name for path in train_files]
+    #     train_labels = label_encoder.transform(train_labels)
     #     train_data = train_files, train_labels
     #
-    #     val_files, test_files, val_labels, test_labels = train_test_split(val_test_files, val_test_labels,
-    #                                                                       test_size=0.5, random_state=42,
-    #                                                                       stratify=val_test_labels)
+    #     class_weights = []
+    #     count_all_files = 0
+    #     for root, subdir, files in os.walk(self.data_dir):
+    #         if len(files) > 0:
+    #             class_weights.append(len(files))
+    #             count_all_files += len(files)
+    #
+    #     self.classes_weights = [x / count_all_files for x in class_weights]
+    #     print('classes_weights', self.classes_weights)
+    #
+    #     sample_weights = [0] * len(train_files)
+    #
+    #     for idx, (data, label) in enumerate(zip(train_files, train_labels)):
+    #         class_weight = self.classes_weights[label]
+    #         sample_weights[idx] = class_weight
+    #
+    #     self.sampler = WeightedRandomSampler(sample_weights, num_samples=len(sample_weights), replacement=True)
+    #
+    #     # self.classes_weights = [round(x / sum(list(Counter(sorted(train_labels)).values())), 2) for x in
+    #     #                        list(Counter(sorted(train_labels)).values())]
+    #
+    #     # without test step
+    #     # val_labels = [path.parent.name for path in val_test_files]
+    #     # val_labels = label_encoder.transform(val_labels)
+    #     # val_data = val_test_files, val_labels
+    #
+    #     # with test step
+    #     val_test_labels = [path.parent.name for path in val_test_files]
+    #     val_files, test_files = train_test_split(val_test_files, test_size=0.5, stratify=val_test_labels)
+    #
+    #     val_labels = [path.parent.name for path in val_files]
+    #     val_labels = label_encoder.transform(val_labels)
+    #
+    #     test_labels = [path.parent.name for path in test_files]
+    #     test_labels = label_encoder.transform(test_labels)
     #
     #     val_data = val_files, val_labels
     #     test_data = test_files, test_labels
-    #
-    #     self.sampler = None
-    #     # self.sampler = WeightedRandomSampler(sample_weights, num_samples=len(sample_weights), replacement=True)
     #
     #     if stage == 'fit' or stage is None:
     #         self.dataset_train = ICPDataset(
@@ -145,36 +158,85 @@ class ICPDataModule(pl.LightningDataModule):
     #         self.dims = tuple(self.dataset_test[0][0].shape)
 
     def setup(self, stage=None):
-        # Assign train/val datasets for use in dataloaders
 
         path = Path(self.data_dir)
 
-        train_val_files = list(path.rglob('*.' + self.images_ext))
-        train_val_labels = [path.parent.name for path in train_val_files]
+        train_df = pd.read_csv('data/landmark-recognition-2021/train.csv')
+        landmark = train_df.landmark_id.value_counts()
+        # we take only 20 most frequent classes. Your can change count of classes - for example to 1000.
+        l = landmark[0:2000].index.values # 13120
 
+        freq_landmarks_df = train_df[train_df['landmark_id'].isin(l)]
+        image_ids = freq_landmarks_df['id'].tolist()
+        landmark_ids = freq_landmarks_df['landmark_id'].tolist()
+
+        # convert from classes to codes 0, 1, 2, 3, ... etc.
         label_encoder = LabelEncoder()
-        encoded = label_encoder.fit_transform(train_val_labels)
+        encoded = label_encoder.fit_transform(l)
+
         self.num_classes = len(np.unique(encoded))
 
-        # save labels dict to file
+        # save labels dict to file. We will use this file during inference.
         with open('label_encoder.pkl', 'wb') as le_dump_file:
             pickle.dump(label_encoder, le_dump_file)
 
-        train_files, val_test_files = train_test_split(train_val_files, test_size=0.3, stratify=train_val_labels)
+        # mapping classes and codes
+        mapping = dict(zip(label_encoder.classes_, range(len(label_encoder.classes_))))
 
-        train_labels = [path.parent.name for path in train_files]
-        train_labels = label_encoder.transform(train_labels)
+        # image_ids landmark_ids dict
+        im_land_dict = dict((k, i) for k, i in zip(image_ids, landmark_ids))
+
+        # get paths of all images in dataset
+        print('Unpacking images...')
+        path_list = [os.path.join(dirpath, filename) for dirpath, _, filenames in os.walk(str(path)) for filename in
+                     filenames if filename.endswith('.jpg')]
+
+        # get filenames from paths
+        filenames = []
+        for path in tqdm(path_list):
+            filename, _ = os.path.splitext(path.split('/')[-1])
+            filenames.append(filename)
+
+        # find intersection of images filenames of our frequent classes and all filenames
+        ind_dict = dict((k, i) for i, k in enumerate(filenames))
+        inter = set(ind_dict).intersection(image_ids)
+        indices = [ind_dict[x] for x in inter]
+
+        # find paths of images of our frequent classes
+        image_ids_paths = []
+        for ind in indices:
+            image_ids_paths.append(path_list[ind])
+
+        # find landmarks ids for our images
+        labels_ids = []
+        for img in tqdm(image_ids_paths):
+            filename, _ = os.path.splitext(img.split('/')[-1])
+            land_id = im_land_dict[filename]
+            labels_ids.append(mapping[int(land_id)])
+
+        # class_weights = [0] * len(encoded)
+        count_all_files = len(labels_ids)
+        counts = dict()
+        for i in labels_ids:
+            counts[i] = counts.get(i, 0) + 1
+
+        self.classes_weights = [x / count_all_files for x in counts.values()]
+        # print('classes_weights', self.classes_weights)
+
+        # you can set classes_weights but I skipped this step
+        # self.classes_weights = None
+
+        image_ids_paths = [Path(p) for p in image_ids_paths]
+
+        print('np.unique(labels_ids)', np.unique(labels_ids))
+
+        # set train images and labels
+        train_files, val_test_files, train_labels, val_test_labels = train_test_split(image_ids_paths, labels_ids,
+                                                                                      test_size=0.3, random_state=42,
+                                                                                      stratify=landmark_ids)
+        print(f'train_files: {len(train_files)}, train_labels: {len(train_labels)}')
+
         train_data = train_files, train_labels
-
-        class_weights = []
-        count_all_files = 0
-        for root, subdir, files in os.walk(self.data_dir):
-            if len(files) > 0:
-                class_weights.append(len(files))
-                count_all_files += len(files)
-
-        self.classes_weights = [x / count_all_files for x in class_weights]
-        print('classes_weights', self.classes_weights)
 
         sample_weights = [0] * len(train_files)
 
@@ -184,26 +246,19 @@ class ICPDataModule(pl.LightningDataModule):
 
         self.sampler = WeightedRandomSampler(sample_weights, num_samples=len(sample_weights), replacement=True)
 
-        # self.classes_weights = [round(x / sum(list(Counter(sorted(train_labels)).values())), 2) for x in
-        #                        list(Counter(sorted(train_labels)).values())]
+        # set val and test images and labels
+        val_files, test_files, val_labels, test_labels = train_test_split(val_test_files, val_test_labels,
+                                                                          test_size=0.5, random_state=42,
+                                                                          stratify=val_test_labels)
 
-        # without test step
-        # val_labels = [path.parent.name for path in val_test_files]
-        # val_labels = label_encoder.transform(val_labels)
-        # val_data = val_test_files, val_labels
-
-        # with test step
-        val_test_labels = [path.parent.name for path in val_test_files]
-        val_files, test_files = train_test_split(val_test_files, test_size=0.5, stratify=val_test_labels)
-
-        val_labels = [path.parent.name for path in val_files]
-        val_labels = label_encoder.transform(val_labels)
-
-        test_labels = [path.parent.name for path in test_files]
-        test_labels = label_encoder.transform(test_labels)
-
+        print(f'val_files: {len(val_files)}, val_labels: {len(val_labels)}')
         val_data = val_files, val_labels
+
+        print(f'test_files: {len(test_files)}, test_labels: {len(test_labels)}')
         test_data = test_files, test_labels
+
+        # self.sampler = None
+        # self.sampler = WeightedRandomSampler(sample_weights, num_samples=len(sample_weights), replacement=True)
 
         if stage == 'fit' or stage is None:
             self.dataset_train = ICPDataset(
@@ -212,6 +267,7 @@ class ICPDataModule(pl.LightningDataModule):
                 augments=self.augments,
                 preprocessing=self.preprocessing)
 
+            # notice that we don't add augments for val dataset but only for training
             self.dataset_val = ICPDataset(
                 data=val_data,
                 input_resize=self.input_resize,
